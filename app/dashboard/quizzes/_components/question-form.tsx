@@ -3,6 +3,7 @@ import { QuestionType } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { UploadImageHelper } from "@/components/upload-image-helper";
 import {
   QUESTION_TYPE_LABELS,
   QUESTION_TYPE_OPTIONS,
@@ -123,10 +124,34 @@ export function QuestionForm({
           name="optionsText"
           rows={6}
           defaultValue={initialValues?.optionsText ?? ""}
-          placeholder={`Formato por linha: label|value|correct\nExemplo:\nReact|react|true\nVue|vue|false`}
+          placeholder={`Formato por linha: label|value|correct|imageUrl(opcional)\nExemplo:\nReact|react|true|\nVue|vue|false|`}
         />
         <p className="text-xs text-muted-foreground">
-          Para tipo boolean, este campo é ignorado.
+          Para tipo boolean, este campo é ignorado. Em perguntas de imagem, a
+          quarta coluna guarda o <code>imageUrl</code> persistido para cada
+          opção.
+        </p>
+        <UploadImageHelper
+          title="Upload rápido para opções"
+          description="Faz upload imediato e dá-te um URL para colar na 4.ª coluna do campo Opções."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="optionImages" className="text-sm font-medium">
+          Associar imagens ao guardar (tipo image)
+        </label>
+        <Input
+          id="optionImages"
+          name="optionImages"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+        />
+        <p className="text-xs text-muted-foreground">
+          Formatos: JPG/PNG/WEBP, máximo 5MB por ficheiro. Os ficheiros são
+          associados por ordem das opções e, depois de guardar, passam a
+          aparecer como <code>imageUrl</code> no campo acima.
         </p>
       </div>
 
@@ -139,11 +164,16 @@ export function QuestionForm({
           name="followUpsJson"
           rows={10}
           defaultValue={initialValues?.followUpsJson ?? ""}
-          placeholder={`[\n  {\n    "text": "Pergunta complementar",\n    "type": "multiple_choice",\n    "order": 1,\n    "options": [\n      { "label": "Opção A", "value": "a", "isCorrect": true },\n      { "label": "Opção B", "value": "b", "isCorrect": false }\n    ]\n  }\n]`}
+          placeholder={`[\n  {\n    "text": "Pergunta complementar",\n    "type": "image",\n    "order": 1,\n    "options": [\n      { "label": "Opção A", "value": "a", "isCorrect": true, "imageUrl": "/api/uploads/exemplo.webp" },\n      { "label": "Opção B", "value": "b", "isCorrect": false, "imageUrl": "/api/uploads/exemplo-2.webp" }\n    ]\n  }\n]`}
         />
         <p className="text-xs text-muted-foreground">
-          Para follow-up boolean, use <code>{`"booleanCorrect": "true"`}</code>.
+          Suporta <code>{`"imageUrl"`}</code> por opção. Para follow-up boolean,
+          use <code>{`"booleanCorrect": "true"`}</code>.
         </p>
+        <UploadImageHelper
+          title="Upload rápido para follow-ups"
+          description="Faz upload imediato e copia o URL para colares no JSON dos follow-ups."
+        />
       </div>
 
       <Button type="submit">{submitLabel}</Button>

@@ -63,8 +63,7 @@
                         "1",
                         "2"
                     ],
-                    "correct_answer": "1",
-                    "note": "Na imagem existe uma anotação manuscrita junto desta pergunta, mas a opção correta não ficou legível."
+                    "correct_answer": "1"
                 }
             ]
         },
@@ -133,8 +132,9 @@
                     "text": "Se sim, qual é a opção correta?",
                     "type": "multiple_choice",
                     "options": [
-                        "1",
-                        "2"
+                        "Ao espirrar, tapar a boca e nariz com lenço de papel, ou no antebraço, descartar para o residuo o lenço e lavar as mãos",
+                        "Ao espirrar, tapar a boca e nariz com lenço de papel, ou no antebraço, descartar para o residuo o lenço e não lavar as mãos",
+                        "Ao espirrar, tapar a boca e nariz com a mão, ou no antebraço, e lavar as mãos"
                     ],
                     "correct_answer": "1"
                 }
@@ -357,7 +357,7 @@
                 "Toalhetes",
                 "Compressas"
             ],
-            "correct_answer": "Pano"
+            "correct_answer": "Compressas"
         },
         {
             "id": 34,

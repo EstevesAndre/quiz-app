@@ -10,10 +10,18 @@ import { getQuizById, parseIntegerParam } from "@/lib/quiz-data";
 export const dynamic = "force-dynamic";
 
 function toOptionsText(
-  options: Array<{ label: string; value: string; isCorrect: boolean }>,
+  options: Array<{
+    label: string;
+    value: string;
+    isCorrect: boolean;
+    imageUrl: string | null;
+  }>,
 ): string {
   return options
-    .map((option) => `${option.label}|${option.value}|${option.isCorrect}`)
+    .map(
+      (option) =>
+        `${option.label}|${option.value}|${option.isCorrect}|${option.imageUrl ?? ""}`,
+    )
     .join("\n");
 }
 
@@ -23,7 +31,12 @@ function toFollowUpsJson(
     type: QuestionType;
     order: number;
     explanation: string | null;
-    options: Array<{ label: string; value: string; isCorrect: boolean }>;
+    options: Array<{
+      label: string;
+      value: string;
+      isCorrect: boolean;
+      imageUrl: string | null;
+    }>;
   }>,
 ): string {
   const serialized = followUps.map((followUp) => {
@@ -50,6 +63,7 @@ function toFollowUpsJson(
         label: option.label,
         value: option.value,
         isCorrect: option.isCorrect,
+        imageUrl: option.imageUrl ?? undefined,
       })),
     };
   });

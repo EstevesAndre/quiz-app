@@ -16,16 +16,10 @@ export default async function Home() {
   const quizzes = await getOpenQuizzes();
 
   return (
-    <main className="min-h-screen bg-muted/30">
-      <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6">
+    <main className="flex min-h-screen flex-col bg-muted/30">
+      <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-6">
         <header className="space-y-2">
           <h1 className="text-2xl font-semibold">Quizzes disponíveis</h1>
-          {/* <p className="text-sm text-muted-foreground">
-            Mostramos apenas quizzes com estado open.
-          </p>
-          <Button size="sm" variant="outline" render={<Link href="/dashboard" />}>
-            Abrir dashboard
-          </Button> */}
         </header>
 
         {quizzes.length === 0 ? (
@@ -57,6 +51,14 @@ export default async function Home() {
           ))}
         </section>
       </div>
+
+      <footer className="bg-background/80">
+        <div className="mx-auto flex w-full max-w-3xl justify-end px-4 py-4">
+          <Button size="sm" variant="ghost" render={<Link href="/dashboard" />}>
+            Dashboard
+          </Button>
+        </div>
+      </footer>
     </main>
   );
 }

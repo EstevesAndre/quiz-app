@@ -52,6 +52,7 @@ model QuestionOption {
   questionId Int
   label      String
   value      String
+  imageUrl   String?
   isCorrect  Boolean @default(false)
   order      Int
 
@@ -79,6 +80,7 @@ model FollowUpQuestionOption {
   followUpQuestionId Int
   label            String
   value            String
+  imageUrl         String?
   isCorrect        Boolean @default(false)
   order            Int
 

@@ -5,10 +5,12 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { saveUploadedImage } from "@/lib/uploads";
 
 type OptionPayload = {
   label: string;
   value: string;
+  imageUrl: string | null;
   isCorrect: boolean;
   order: number;
 };
@@ -22,6 +24,8 @@ type FollowUpPayload = {
 };
 
 const TRUTHY_VALUE_REGEX = /^(true|1|yes|sim)$/i;
+const IMAGE_REFERENCE_REGEX =
+  /(^\/api\/uploads\/.+)|(\.(png|jpe?g|webp)(\?.*)?$)/i;
 
 function readString(value: FormDataEntryValue | null): string {
   if (typeof value !== "string") {
@@ -75,6 +79,43 @@ function sanitizeOptionValue(label: string): string {
   return label.toLowerCase().replace(/\s+/g, "_");
 }
 
+function looksLikeImageReference(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  return IMAGE_REFERENCE_REGEX.test(value.trim());
+}
+
+function normalizeImageOptions(options: OptionPayload[]): OptionPayload[] {
+  return options.map((option, index) => {
+    const inferredImageUrl =
+      option.imageUrl ||
+      (looksLikeImageReference(option.label) ? option.label : null) ||
+      (looksLikeImageReference(option.value) ? option.value : null);
+
+    const normalizedLabel =
+      inferredImageUrl && looksLikeImageReference(option.label)
+        ? `Imagem ${index + 1}`
+        : option.label || `Imagem ${index + 1}`;
+
+    return {
+      ...option,
+      label: normalizedLabel,
+      imageUrl: inferredImageUrl,
+    };
+  });
+}
+
+function normalizeOptionalString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
 function readBoolean(value: unknown): boolean {
   if (typeof value === "boolean") {
     return value;
@@ -98,7 +139,12 @@ function parseOptionsFromText(rawValue: string): OptionPayload[] {
     .filter((line) => line.length > 0);
 
   return lines.map((line, index) => {
-    const [rawLabel = "", rawOptionValue = "", rawIsCorrect = "false"] = line
+    const [
+      rawLabel = "",
+      rawOptionValue = "",
+      rawIsCorrect = "false",
+      rawImageUrl = "",
+    ] = line
       .split("|")
       .map((part) => part.trim());
 
@@ -109,6 +155,7 @@ function parseOptionsFromText(rawValue: string): OptionPayload[] {
     return {
       label: rawLabel,
       value: rawOptionValue || sanitizeOptionValue(rawLabel),
+      imageUrl: rawImageUrl || null,
       isCorrect: TRUTHY_VALUE_REGEX.test(rawIsCorrect),
       order: index + 1,
     };
@@ -122,12 +169,14 @@ function buildBooleanOptions(correctValueRaw: string): OptionPayload[] {
     {
       label: "True",
       value: "true",
+      imageUrl: null,
       isCorrect: correctValue === "true",
       order: 1,
     },
     {
       label: "False",
       value: "false",
+      imageUrl: null,
       isCorrect: correctValue === "false",
       order: 2,
     },
@@ -169,6 +218,9 @@ function parseOptionsFromJsonArray(rawOptions: unknown, context: string): Option
     return {
       label,
       value: value || sanitizeOptionValue(label),
+      imageUrl: normalizeOptionalString(
+        "imageUrl" in rawOption ? rawOption.imageUrl : undefined,
+      ),
       isCorrect,
       order: index + 1,
     };
@@ -222,6 +274,10 @@ function parseFollowUpsFromJson(rawValue: string): FollowUpPayload[] {
         entryObject.options,
         `Follow-up ${index + 1}`,
       );
+
+      if (type === QuestionType.image) {
+        options = normalizeImageOptions(options);
+      }
     }
 
     return {
@@ -234,14 +290,55 @@ function parseFollowUpsFromJson(rawValue: string): FollowUpPayload[] {
   });
 }
 
-function parseMainQuestionOptions(formData: FormData, type: QuestionType): OptionPayload[] {
+function readUploadedImages(formData: FormData, fieldName: string): File[] {
+  return formData.getAll(fieldName).filter((entry): entry is File => {
+    return entry instanceof File && entry.size > 0;
+  });
+}
+
+async function attachUploadedImagesToOptions(
+  options: OptionPayload[],
+  files: File[],
+) {
+  if (files.length === 0) {
+    return options;
+  }
+
+  if (files.length > options.length) {
+    throw new Error("Foram enviadas mais imagens do que opções.");
+  }
+
+  const nextOptions = options.map((option) => ({ ...option }));
+
+  for (let index = 0; index < files.length; index += 1) {
+    const storedUpload = await saveUploadedImage(files[index]);
+    nextOptions[index].imageUrl = storedUpload.publicUrl;
+  }
+
+  return nextOptions;
+}
+
+async function parseMainQuestionOptions(
+  formData: FormData,
+  type: QuestionType,
+): Promise<OptionPayload[]> {
   if (type === QuestionType.boolean) {
     return buildBooleanOptions(readString(formData.get("booleanCorrect")));
   }
 
-  const options = parseOptionsFromText(readString(formData.get("optionsText")));
-  validateNonBooleanOptions(options, "Pergunta principal");
-  return options;
+  const baseOptions = parseOptionsFromText(readString(formData.get("optionsText")));
+  validateNonBooleanOptions(baseOptions, "Pergunta principal");
+
+  if (type !== QuestionType.image) {
+    return baseOptions;
+  }
+
+  const normalizedImageOptions = normalizeImageOptions(baseOptions);
+
+  return attachUploadedImagesToOptions(
+    normalizedImageOptions,
+    readUploadedImages(formData, "optionImages"),
+  );
 }
 
 function revalidateQuizPaths(quizId: number) {
@@ -309,7 +406,7 @@ export async function createQuestionAction(formData: FormData) {
   const type = readQuestionType(formData.get("type"));
   const order = readPositiveInteger(formData.get("order"));
   const explanation = readNullableString(formData.get("explanation"));
-  const options = parseMainQuestionOptions(formData, type);
+  const options = await parseMainQuestionOptions(formData, type);
   const followUps = parseFollowUpsFromJson(readString(formData.get("followUpsJson")));
 
   await prisma.question.create({
@@ -368,7 +465,7 @@ export async function updateQuestionAction(formData: FormData) {
   const type = readQuestionType(formData.get("type"));
   const order = readPositiveInteger(formData.get("order"));
   const explanation = readNullableString(formData.get("explanation"));
-  const options = parseMainQuestionOptions(formData, type);
+  const options = await parseMainQuestionOptions(formData, type);
   const followUps = parseFollowUpsFromJson(readString(formData.get("followUpsJson")));
 
   await prisma.question.update({

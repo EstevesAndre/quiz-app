@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -16,6 +17,14 @@ type AnswerValue = string | string[];
 
 type QuizProgress = {
   answers: Record<string, AnswerValue>;
+};
+
+type QuizOption = {
+  id: number;
+  label: string;
+  value: string;
+  imageUrl: string | null;
+  isCorrect: boolean;
 };
 
 function getStorageKey(quizId: number) {
@@ -98,6 +107,48 @@ function isOptionChecked(
   return typeof answer === "string" ? answer === optionValue : false;
 }
 
+function looksLikeImageReference(value: string | null | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  return /(^\/api\/uploads\/.+)|(\.(png|jpe?g|webp)(\?.*)?$)/i.test(
+    value.trim(),
+  );
+}
+
+function resolveOptionImageUrl(option: QuizOption) {
+  if (option.imageUrl) {
+    return option.imageUrl;
+  }
+
+  if (looksLikeImageReference(option.label)) {
+    return option.label;
+  }
+
+  if (looksLikeImageReference(option.value)) {
+    return option.value;
+  }
+
+  return null;
+}
+
+function resolveOptionLabel(
+  option: QuizOption,
+  optionIndex: number,
+  hasImage: boolean,
+) {
+  if (!hasImage) {
+    return option.label || `Opção ${optionIndex + 1}`;
+  }
+
+  if (looksLikeImageReference(option.label)) {
+    return `Imagem ${optionIndex + 1}`;
+  }
+
+  return option.label || `Imagem ${optionIndex + 1}`;
+}
+
 export function QuizQuestionView({
   quiz,
   questionIndex,
@@ -112,12 +163,33 @@ export function QuizQuestionView({
     return readProgress(storageKey).answers;
   });
   const [showValidationError, setShowValidationError] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
 
   const question = quiz.questions[questionIndex - 1];
 
   useEffect(() => {
     sessionStorage.setItem(storageKey, JSON.stringify({ answers }));
   }, [answers, storageKey]);
+
+  useEffect(() => {
+    if (!previewImage) {
+      return;
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setPreviewImage(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [previewImage]);
 
   if (!question) {
     return null;
@@ -182,124 +254,232 @@ export function QuizQuestionView({
     router.push(`/quiz/${quiz.id}/question/${questionIndex - 1}`);
   }
 
-  return (
-    <Card>
-      <CardHeader className="space-y-2">
-        <p className="text-xs uppercase text-muted-foreground">
-          Pergunta {questionIndex} de {quiz.questions.length}
-        </p>
-        <CardTitle>{question.text}</CardTitle>
-        {question.explanation ? (
-          <p className="text-sm text-muted-foreground">
-            {question.explanation}
+  function renderOptionsBlock({
+    options,
+    answerKey,
+    inputName,
+  }: {
+    options: QuizOption[];
+    answerKey: string;
+    inputName: string;
+  }) {
+    const isMultiple = isMultipleChoiceCorrect(options);
+    const hasImageOptions = options.some((option) =>
+      Boolean(resolveOptionImageUrl(option)),
+    );
+
+    return (
+      <>
+        {isMultiple ? (
+          <p className="text-xs text-muted-foreground">
+            Seleciona todas as respostas corretas.
           </p>
         ) : null}
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <section className="space-y-2">
-          {isMultipleChoiceCorrect(question.options) ? (
-            <p className="text-xs text-muted-foreground">
-              Seleciona todas as respostas corretas.
+
+        <div
+          className={hasImageOptions ? "grid grid-cols-2 gap-3" : "space-y-2"}
+        >
+          {options.map((option, optionIndex) => {
+            const imageUrl = resolveOptionImageUrl(option);
+            const optionLabel = resolveOptionLabel(
+              option,
+              optionIndex,
+              Boolean(imageUrl),
+            );
+            const checked = isOptionChecked(
+              answers[answerKey],
+              option.value,
+              isMultiple,
+            );
+
+            if (hasImageOptions) {
+              return (
+                <label
+                  key={option.id}
+                  className={`relative flex cursor-pointer flex-col gap-2 rounded-xl border p-2 text-sm transition ${
+                    checked
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <input
+                    type={isMultiple ? "checkbox" : "radio"}
+                    name={inputName}
+                    value={option.value}
+                    checked={checked}
+                    onChange={() => {
+                      if (isMultiple) {
+                        handleMultiAnswerChange(answerKey, option.value);
+                        return;
+                      }
+
+                      handleSingleAnswerChange(answerKey, option.value);
+                    }}
+                    className="absolute top-2 left-2 z-10 size-4"
+                  />
+
+                  {imageUrl ? (
+                    <button
+                      type="button"
+                      className="absolute bottom-1 right-2 z-10 rounded-md border bg-background/90 px-3 py-1 text-[10px] font-medium text-foreground shadow-sm"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setPreviewImage({
+                          src: imageUrl,
+                          alt: optionLabel,
+                        });
+                      }}
+                    >
+                      Ver
+                    </button>
+                  ) : null}
+
+                  {imageUrl ? (
+                    <div className="ml-6 overflow-hidden rounded-lg border">
+                      <Image
+                        src={imageUrl}
+                        alt={optionLabel}
+                        width={400}
+                        height={300}
+                        className="h-36 w-full object-cover sm:h-44"
+                      />
+                    </div>
+                  ) : (
+                    <div className="ml-6 flex h-36 items-center justify-center rounded-lg border bg-muted text-xs text-muted-foreground sm:h-44">
+                      Sem imagem
+                    </div>
+                  )}
+
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
+                    {optionLabel}
+                  </p>
+                </label>
+              );
+            }
+
+            return (
+              <label
+                key={option.id}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm"
+              >
+                <input
+                  type={isMultiple ? "checkbox" : "radio"}
+                  name={inputName}
+                  value={option.value}
+                  checked={checked}
+                  onChange={() => {
+                    if (isMultiple) {
+                      handleMultiAnswerChange(answerKey, option.value);
+                      return;
+                    }
+
+                    handleSingleAnswerChange(answerKey, option.value);
+                  }}
+                />
+                <div className="flex flex-1 items-center gap-3">
+                  <span>{optionLabel}</span>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader className="space-y-2">
+          <p className="text-xs uppercase text-muted-foreground">
+            Pergunta {questionIndex} de {quiz.questions.length}
+          </p>
+          <CardTitle>{question.text}</CardTitle>
+          {question.explanation ? (
+            <p className="text-sm text-muted-foreground">
+              {question.explanation}
             </p>
           ) : null}
-          {question.options.map((option) => (
-            <label
-              key={option.id}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm"
-            >
-              <input
-                type={
-                  isMultipleChoiceCorrect(question.options)
-                    ? "checkbox"
-                    : "radio"
-                }
-                name={`question-${question.id}`}
-                value={option.value}
-                checked={isOptionChecked(
-                  answers[mainQuestionKey],
-                  option.value,
-                  isMultipleChoiceCorrect(question.options),
-                )}
-                onChange={() => {
-                  if (isMultipleChoiceCorrect(question.options)) {
-                    handleMultiAnswerChange(mainQuestionKey, option.value);
-                    return;
-                  }
-
-                  handleSingleAnswerChange(mainQuestionKey, option.value);
-                }}
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </section>
-
-        {question.followUps.length > 0 ? (
-          <section className="space-y-4 border-t pt-4">
-            {question.followUps.map((followUp) => {
-              const followUpKey = `f-${followUp.id}`;
-
-              return (
-                <div key={followUp.id} className="space-y-2">
-                  <p className="text-sm font-medium">{followUp.text}</p>
-                  {isMultipleChoiceCorrect(followUp.options) ? (
-                    <p className="text-xs text-muted-foreground">
-                      Seleciona todas as respostas corretas.
-                    </p>
-                  ) : null}
-                  {followUp.options.map((option) => (
-                    <label
-                      key={option.id}
-                      className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm"
-                    >
-                      <input
-                        type={
-                          isMultipleChoiceCorrect(followUp.options)
-                            ? "checkbox"
-                            : "radio"
-                        }
-                        name={`followup-${followUp.id}`}
-                        value={option.value}
-                        checked={isOptionChecked(
-                          answers[followUpKey],
-                          option.value,
-                          isMultipleChoiceCorrect(followUp.options),
-                        )}
-                        onChange={() => {
-                          if (isMultipleChoiceCorrect(followUp.options)) {
-                            handleMultiAnswerChange(followUpKey, option.value);
-                            return;
-                          }
-
-                          handleSingleAnswerChange(followUpKey, option.value);
-                        }}
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              );
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <section className="space-y-2">
+            {renderOptionsBlock({
+              options: question.options,
+              answerKey: mainQuestionKey,
+              inputName: `question-${question.id}`,
             })}
           </section>
-        ) : null}
 
-        {showValidationError ? (
-          <p className="text-sm text-destructive">
-            Responde à pergunta principal e aos follow-ups antes de avançar.
-          </p>
-        ) : null}
+          {question.followUps.length > 0 ? (
+            <section className="space-y-4 border-t pt-4">
+              {question.followUps.map((followUp) => {
+                const followUpKey = `f-${followUp.id}`;
 
-        <div className="flex items-center justify-between">
-          <Button type="button" variant="outline" onClick={handleBack}>
-            Voltar
-          </Button>
-          <Button type="button" onClick={handleNext}>
-            {questionIndex >= quiz.questions.length
-              ? "Ver resultado"
-              : "Seguinte"}
-          </Button>
+                return (
+                  <div key={followUp.id} className="space-y-2">
+                    <p className="text-sm font-medium">{followUp.text}</p>
+                    {renderOptionsBlock({
+                      options: followUp.options,
+                      answerKey: followUpKey,
+                      inputName: `followup-${followUp.id}`,
+                    })}
+                  </div>
+                );
+              })}
+            </section>
+          ) : null}
+
+          {showValidationError ? (
+            <p className="text-sm text-destructive">
+              Responde à pergunta principal e aos follow-ups antes de avançar.
+            </p>
+          ) : null}
+
+          <div className="flex items-center justify-between">
+            <Button type="button" variant="outline" onClick={handleBack}>
+              Voltar
+            </Button>
+            <Button type="button" onClick={handleNext}>
+              {questionIndex >= quiz.questions.length
+                ? "Ver resultado"
+                : "Seguinte"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {previewImage ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setPreviewImage(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 rounded-md border border-white/40 bg-black/30 px-3 py-1 text-sm text-white"
+            onClick={(event) => {
+              event.stopPropagation();
+              setPreviewImage(null);
+            }}
+          >
+            Fechar
+          </button>
+
+          <div
+            className="relative h-[85vh] w-full max-w-5xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Image
+              src={previewImage.src}
+              alt={previewImage.alt}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              priority
+            />
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      ) : null}
+    </>
   );
 }

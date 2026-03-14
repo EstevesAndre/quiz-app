@@ -47,6 +47,7 @@ export type PlayQuiz = {
       id: number;
       label: string;
       value: string;
+      imageUrl: string | null;
       isCorrect: boolean;
       order: number;
     }>;
@@ -60,6 +61,7 @@ export type PlayQuiz = {
         id: number;
         label: string;
         value: string;
+        imageUrl: string | null;
         isCorrect: boolean;
         order: number;
       }>;
@@ -133,6 +135,7 @@ export function serializeQuizForPlay(quiz: QuizWithQuestions): PlayQuiz {
         id: option.id,
         label: option.label,
         value: option.value,
+        imageUrl: option.imageUrl,
         isCorrect: option.isCorrect,
         order: option.order,
       })),
@@ -146,6 +149,7 @@ export function serializeQuizForPlay(quiz: QuizWithQuestions): PlayQuiz {
           id: option.id,
           label: option.label,
           value: option.value,
+          imageUrl: option.imageUrl,
           isCorrect: option.isCorrect,
           order: option.order,
         })),

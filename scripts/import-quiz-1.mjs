@@ -34,6 +34,30 @@ function normalizeCorrectAnswers(correctAnswer) {
   return singleValue ? [singleValue] : [];
 }
 
+function resolveCorrectOptionLabels(correctAnswers, normalizedOptions) {
+  const resolvedCorrectAnswers = new Set();
+
+  for (const answer of correctAnswers) {
+    if (!answer) {
+      continue;
+    }
+
+    if (normalizedOptions.includes(answer)) {
+      resolvedCorrectAnswers.add(answer);
+      continue;
+    }
+
+    if (/^\d+$/.test(answer)) {
+      const optionIndex = Number.parseInt(answer, 10) - 1;
+      if (optionIndex >= 0 && optionIndex < normalizedOptions.length) {
+        resolvedCorrectAnswers.add(normalizedOptions[optionIndex]);
+      }
+    }
+  }
+
+  return resolvedCorrectAnswers;
+}
+
 function slugify(value) {
   return value
     .normalize("NFD")
@@ -49,7 +73,10 @@ function buildOptions(rawOptions, rawCorrectAnswer, contextLabel) {
   }
 
   const normalizedOptions = rawOptions.map((option) => normalizeText(String(option)));
-  const correctAnswers = new Set(normalizeCorrectAnswers(rawCorrectAnswer));
+  const correctAnswers = resolveCorrectOptionLabels(
+    normalizeCorrectAnswers(rawCorrectAnswer),
+    normalizedOptions,
+  );
 
   const options = normalizedOptions.map((label, index) => ({
     label,
