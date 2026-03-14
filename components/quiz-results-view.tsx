@@ -12,15 +12,17 @@ type QuizResultsViewProps = {
   quiz: PlayQuiz;
 };
 
+type AnswerValue = string | string[];
+
 type QuizProgress = {
-  answers: Record<string, string>;
+  answers: Record<string, AnswerValue>;
 };
 
 type ResultEntry = {
   id: string;
   text: string;
-  userAnswer: string | null;
-  correctAnswer: string | null;
+  userAnswer: string;
+  correctAnswer: string;
   isCorrect: boolean;
 };
 
@@ -39,7 +41,28 @@ function readProgress(storageKey: string): QuizProgress {
     if (!parsed || typeof parsed !== "object" || !parsed.answers) {
       return { answers: {} };
     }
-    return parsed;
+
+    const sanitizedAnswers = Object.entries(parsed.answers).reduce<
+      Record<string, AnswerValue>
+    >((accumulator, [key, value]) => {
+      if (typeof value === "string") {
+        accumulator[key] = value;
+        return accumulator;
+      }
+
+      if (Array.isArray(value)) {
+        accumulator[key] = value
+          .filter((entry): entry is string => typeof entry === "string")
+          .map((entry) => entry.trim())
+          .filter(Boolean);
+      }
+
+      return accumulator;
+    }, {});
+
+    return {
+      answers: sanitizedAnswers,
+    };
   } catch {
     return { answers: {} };
   }
@@ -47,7 +70,7 @@ function readProgress(storageKey: string): QuizProgress {
 
 function resolveLabel(
   options: Array<{ label: string; value: string }>,
-  value: string | null,
+  value: string,
 ): string {
   if (!value) {
     return "Sem resposta";
@@ -57,10 +80,57 @@ function resolveLabel(
   return option?.label ?? value;
 }
 
+function resolveAnswersLabel(
+  options: Array<{ label: string; value: string }>,
+  value: AnswerValue | undefined,
+): string {
+  if (!value) {
+    return "Sem resposta";
+  }
+
+  if (typeof value === "string") {
+    return resolveLabel(options, value);
+  }
+
+  if (value.length === 0) {
+    return "Sem resposta";
+  }
+
+  return value.map((entry) => resolveLabel(options, entry)).join(", ");
+}
+
+function toSelectedValues(value: AnswerValue | undefined): string[] {
+  if (!value) {
+    return [];
+  }
+
+  if (typeof value === "string") {
+    return value ? [value] : [];
+  }
+
+  return value;
+}
+
+function isCorrectAnswer(
+  selectedValues: string[],
+  correctValues: string[],
+): boolean {
+  if (correctValues.length === 0) {
+    return false;
+  }
+
+  if (selectedValues.length !== correctValues.length) {
+    return false;
+  }
+
+  const selectedSet = new Set(selectedValues);
+  return correctValues.every((value) => selectedSet.has(value));
+}
+
 export function QuizResultsView({ quiz }: QuizResultsViewProps) {
   const router = useRouter();
   const storageKey = useMemo(() => getStorageKey(quiz.id), [quiz.id]);
-  const [answers] = useState<Record<string, string>>(() => {
+  const [answers] = useState<Record<string, AnswerValue>>(() => {
     if (typeof window === "undefined") {
       return {};
     }
@@ -73,41 +143,41 @@ export function QuizResultsView({ quiz }: QuizResultsViewProps) {
 
     for (const question of quiz.questions) {
       const questionKey = `q-${question.id}`;
-      const questionCorrectOption =
-        question.options.find((option) => option.isCorrect) ?? null;
-      const questionAnswer = answers[questionKey] ?? null;
+      const questionCorrectValues = question.options
+        .filter((option) => option.isCorrect)
+        .map((option) => option.value);
+      const questionAnswer = answers[questionKey];
+
       flattened.push({
         id: questionKey,
         text: question.text,
-        userAnswer: resolveLabel(question.options, questionAnswer),
-        correctAnswer: resolveLabel(
-          question.options,
-          questionCorrectOption?.value ?? null,
+        userAnswer: resolveAnswersLabel(question.options, questionAnswer),
+        correctAnswer: resolveAnswersLabel(question.options, questionCorrectValues),
+        isCorrect: isCorrectAnswer(
+          toSelectedValues(questionAnswer),
+          questionCorrectValues,
         ),
-        isCorrect:
-          questionAnswer !== null &&
-          questionCorrectOption !== null &&
-          questionAnswer === questionCorrectOption.value,
       });
 
       for (const followUp of question.followUps) {
         const followUpKey = `f-${followUp.id}`;
-        const followUpCorrectOption =
-          followUp.options.find((option) => option.isCorrect) ?? null;
-        const followUpAnswer = answers[followUpKey] ?? null;
+        const followUpCorrectValues = followUp.options
+          .filter((option) => option.isCorrect)
+          .map((option) => option.value);
+        const followUpAnswer = answers[followUpKey];
 
         flattened.push({
           id: followUpKey,
           text: followUp.text,
-          userAnswer: resolveLabel(followUp.options, followUpAnswer),
-          correctAnswer: resolveLabel(
+          userAnswer: resolveAnswersLabel(followUp.options, followUpAnswer),
+          correctAnswer: resolveAnswersLabel(
             followUp.options,
-            followUpCorrectOption?.value ?? null,
+            followUpCorrectValues,
           ),
-          isCorrect:
-            followUpAnswer !== null &&
-            followUpCorrectOption !== null &&
-            followUpAnswer === followUpCorrectOption.value,
+          isCorrect: isCorrectAnswer(
+            toSelectedValues(followUpAnswer),
+            followUpCorrectValues,
+          ),
         });
       }
     }
