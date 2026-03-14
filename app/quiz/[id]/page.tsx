@@ -1,11 +1,11 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { startQuizAction } from "@/app/quiz/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { startQuizAction } from "@/app/quiz/actions";
 import { getOpenQuizById, parseIntegerParam } from "@/lib/quiz-data";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +34,14 @@ export default async function QuizStartPage({ params }: QuizStartPageProps) {
   return (
     <main className="min-h-screen bg-muted/30">
       <div className="mx-auto w-full max-w-2xl space-y-4 px-4 py-6">
-        <Link href="/" className="text-sm text-muted-foreground hover:underline">
-          Voltar à lista
-        </Link>
+        <div>
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground hover:underline"
+          >
+            Voltar à lista
+          </Link>
+        </div>
 
         <Card>
           <CardHeader className="space-y-2">
@@ -45,8 +50,8 @@ export default async function QuizStartPage({ params }: QuizStartPageProps) {
               {quiz.description ?? "Sem descrição"}
             </p>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <form action={startQuizAction} className="space-y-3">
+          <CardContent className="flex flex-row gap-3">
+            <form action={startQuizAction} className="space-y-3 flex-1">
               <input type="hidden" name="quizId" value={quiz.id} />
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">
@@ -64,9 +69,14 @@ export default async function QuizStartPage({ params }: QuizStartPageProps) {
               </Button>
             </form>
 
-            <form action={startQuizAction}>
+            <form action={startQuizAction} className="self-end">
               <input type="hidden" name="quizId" value={quiz.id} />
-              <Button type="submit" name="mode" value="anonymous" variant="outline">
+              <Button
+                type="submit"
+                name="mode"
+                value="anonymous"
+                variant="outline"
+              >
                 Continuar anónimo
               </Button>
             </form>

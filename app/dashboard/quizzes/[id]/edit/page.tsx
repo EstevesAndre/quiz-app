@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateQuizAction } from "@/app/dashboard/actions";
 import { QuizForm } from "@/app/dashboard/quizzes/_components/quiz-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getQuizById, parseIntegerParam } from "@/lib/quiz-data";
 
 export const dynamic = "force-dynamic";
@@ -28,13 +28,14 @@ export default async function EditQuizPage({ params }: EditQuizPageProps) {
 
   return (
     <div className="space-y-4">
-      <Link
-        href={`/dashboard/quizzes/${quiz.id}`}
-        className="text-sm text-muted-foreground hover:underline"
-      >
-        Voltar ao quiz
-      </Link>
-
+      <div>
+        <Link
+          href={`/dashboard/quizzes/${quiz.id}`}
+          className="text-sm text-muted-foreground hover:underline"
+        >
+          Voltar ao quiz
+        </Link>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Editar quiz</CardTitle>

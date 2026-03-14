@@ -10,7 +10,9 @@ import { getQuizById, parseIntegerParam } from "@/lib/quiz-data";
 
 export const dynamic = "force-dynamic";
 
-function getStatusVariant(status: QuizStatus): "default" | "secondary" | "outline" {
+function getStatusVariant(
+  status: QuizStatus,
+): "default" | "secondary" | "outline" {
   if (status === QuizStatus.open) {
     return "default";
   }
@@ -28,7 +30,9 @@ type QuizDetailsPageProps = {
   }>;
 };
 
-export default async function QuizDetailsPage({ params }: QuizDetailsPageProps) {
+export default async function QuizDetailsPage({
+  params,
+}: QuizDetailsPageProps) {
   const { id } = await params;
   const quizId = parseIntegerParam(id);
   if (!quizId) {
@@ -41,11 +45,15 @@ export default async function QuizDetailsPage({ params }: QuizDetailsPageProps) 
   }
 
   return (
-    <div className="space-y-5">
-      <Link href="/dashboard" className="text-sm text-muted-foreground hover:underline">
-        Voltar ao dashboard
-      </Link>
-
+    <div className="space-y-4">
+      <div>
+        <Link
+          href="/dashboard"
+          className="text-sm text-muted-foreground hover:underline"
+        >
+          Voltar ao dashboard
+        </Link>
+      </div>
       <Card>
         <CardHeader className="gap-3">
           <div className="flex items-center justify-between gap-3">
@@ -68,7 +76,9 @@ export default async function QuizDetailsPage({ params }: QuizDetailsPageProps) 
           </Button>
           <Button
             size="sm"
-            render={<Link href={`/dashboard/quizzes/${quiz.id}/questions/new`} />}
+            render={
+              <Link href={`/dashboard/quizzes/${quiz.id}/questions/new`} />
+            }
           >
             Adicionar pergunta
           </Button>
@@ -90,13 +100,16 @@ export default async function QuizDetailsPage({ params }: QuizDetailsPageProps) 
             <CardHeader className="gap-2">
               <div className="flex items-center justify-between gap-2">
                 <CardTitle className="text-sm">#{question.order}</CardTitle>
-                <Badge variant="outline">{QUESTION_TYPE_LABELS[question.type]}</Badge>
+                <Badge variant="outline">
+                  {QUESTION_TYPE_LABELS[question.type]}
+                </Badge>
               </div>
               <p className="text-sm">{question.text}</p>
             </CardHeader>
             <CardContent className="space-y-3 pb-5">
               <p className="text-xs text-muted-foreground">
-                {question.options.length} opção(ões) · {question.followUps.length} follow-up(s)
+                {question.options.length} opção(ões) ·{" "}
+                {question.followUps.length} follow-up(s)
               </p>
               <Button
                 size="sm"
