@@ -3,14 +3,86 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
+enum QuizStatus {
+  draft
+  open
+  closed
+}
+
+enum QuestionType {
+  boolean
+  multiple_choice
+  image
+}
+
+model Quiz {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  status      QuizStatus @default(draft)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  questions Question[]
+}
+
+model Question {
+  id          Int          @id @default(autoincrement())
+  quizId       Int
+  order        Int
+  text         String
+  type         QuestionType
+  explanation  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  quiz      Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options   QuestionOption[]
+  followUps FollowUpQuestion[]
+
+  @@index([quizId, order])
+}
+
+model QuestionOption {
+  id         Int     @id @default(autoincrement())
+  questionId Int
+  label      String
+  value      String
+  isCorrect  Boolean @default(false)
+  order      Int
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, order])
+}
+
+model FollowUpQuestion {
+  id               Int          @id @default(autoincrement())
+  parentQuestionId Int
+  order            Int
+  text             String
+  type             QuestionType
+  explanation      String?
+
+  parentQuestion Question                 @relation(fields: [parentQuestionId], references: [id], onDelete: Cascade)
+  options        FollowUpQuestionOption[]
+
+  @@index([parentQuestionId, order])
+}
+
+model FollowUpQuestionOption {
+  id               Int     @id @default(autoincrement())
+  followUpQuestionId Int
+  label            String
+  value            String
+  isCorrect        Boolean @default(false)
+  order            Int
+
+  followUpQuestion FollowUpQuestion @relation(fields: [followUpQuestionId], references: [id], onDelete: Cascade)
+
+  @@index([followUpQuestionId, order])
 }

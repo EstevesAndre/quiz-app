@@ -1,0 +1,485 @@
+{
+    "document": "questionnaire",
+    "language": "pt-PT",
+    "questions": [
+        {
+            "id": 1,
+            "text": "A Norma das PBCI está disponível no Manual de Boas Práticas da Unidade de Saúde",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 2,
+            "text": "Conhecem a Norma das PBCI?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim",
+            "follow_ups": [
+                {
+                    "id": 3,
+                    "text": "Se sim, a Norma é:",
+                    "type": "multiple_choice",
+                    "options": [
+                        "18",
+                        "29",
+                        "55"
+                    ],
+                    "correct_answer": "29"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "text": "Existem afixados cartazes sobre a técnica da higienização das mãos em locais estratégicos?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 5,
+            "text": "Conhece a técnica da Higienização das Mãos?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim",
+            "follow_ups": [
+                {
+                    "id": 6,
+                    "text": "Se sim, conhecem a técnica da higienização?",
+                    "type": "image",
+                    "options": [
+                        "1",
+                        "2"
+                    ],
+                    "correct_answer": "1",
+                    "note": "Na imagem existe uma anotação manuscrita junto desta pergunta, mas a opção correta não ficou legível."
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "text": "Existe SABA* à disposição de todos os profissionais e próximo dos doentes",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 8,
+            "text": "O material/equipamento para a higienização das mãos é adequado (inclui o hidratante para mãos)",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 9,
+            "text": "O material/equipamento para a higienização das mãos está em boas condições de higiene e manutenção",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 10,
+            "text": "Os antissépticos, detergentes e desinfetantes usados, são os recomendados pelas Comissões de prevenção e Controlo da Infeção e das Resistências aos Antimicrobianos (PPCIRA)/Gestão de Risco e Farmácia",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 11,
+            "text": "Existem cartazes afixados, chamando a atenção para as medidas preconizadas na etiqueta respiratória",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 12,
+            "text": "Conheces os componentes da etiqueta respiratória*",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim",
+            "follow_ups": [
+                {
+                    "id": 13,
+                    "text": "Se sim, qual é a opção correta?",
+                    "type": "multiple_choice",
+                    "options": [
+                        "1",
+                        "2"
+                    ],
+                    "correct_answer": "1"
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "text": "Os profissionais sabem como devem proceder em relação aos doentes/clientes nos períodos de maior prevalência de infeções respiratórias*",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 15,
+            "text": "Existem afixados protocolos de descontaminação dos materiais/equipamentos nos locais apropriados",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 16,
+            "text": "Conhece a norma interna de descontaminação de materiais e equipamentos?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim",
+            "follow_ups": [
+                {
+                    "id": 17,
+                    "text": "Se sim, a Norma é:",
+                    "type": "multiple_choice",
+                    "options": [
+                        "18",
+                        "29",
+                        "55"
+                    ],
+                    "correct_answer": "55"
+                },
+                {
+                    "id": 18,
+                    "text": "Onde consultá-la?",
+                    "type": "multiple_choice",
+                    "allow_multiple": true,
+                    "options": [
+                        "Afixada",
+                        "Pasta de serviço (computador)",
+                        "Nenhum deles"
+                    ],
+                    "correct_answer": [
+                        "Afixada",
+                        "Pasta de serviço (computador)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "text": "Existe um Procedimento de descontaminação de urinóis",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 20,
+            "text": "Se existem artigos reutilizáveis, está estabelecido um programa de descontaminação",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 21,
+            "text": "As recomendações dos fabricantes quanto ao método de descontaminação dos equipamentos estão disponíveis",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 22,
+            "text": "A responsabilidade pelo cumprimento dos protocolos para a descontaminação dos materiais/equipamentos está atribuída",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 23,
+            "text": "Os EPI estão disponíveis nos locais de prestação de cuidados e são adequados aos procedimentos",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 24,
+            "text": "Os EPI disponíveis nos locais de prestação de cuidados são suficientes (não há rotura de fornecimento)",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 25,
+            "text": "Existem protocolos para a remoção de derrames de matéria orgânica",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 26,
+            "text": "No caso de derrame de sangue / urina sabe como proceder?",
+            "type": "multiple_choice",
+            "options": [
+                "Remover com papel e rejeitar no grupo III + pulverizar com anios + lavar com mopa",
+                "Remover com papel e rejeitar no grupo II + pulverizar com anios + lavar com mopa",
+                "Remover com papel e rejeitar no grupo IV + pulverizar com anios + lavar com mopa"
+            ],
+            "correct_answer": "Remover com papel e rejeitar no grupo III + pulverizar com anios + lavar com mopa"
+        },
+        {
+            "id": 27,
+            "text": "Os profissionais têm conhecimento dos protocolos de limpeza e da sua responsabilidade específica",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 28,
+            "text": "Conhece a norma interna sobre as recomendações gerais de limpeza e desinfeção de instalações",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim",
+            "follow_ups": [
+                {
+                    "id": 29,
+                    "text": "Se sim, a Norma é:",
+                    "type": "multiple_choice",
+                    "options": [
+                        "18",
+                        "29",
+                        "55"
+                    ],
+                    "correct_answer": "18"
+                },
+                {
+                    "id": 30,
+                    "text": "Onde consultá-la?",
+                    "type": "multiple_choice",
+                    "allow_multiple": true,
+                    "options": [
+                        "Afixada",
+                        "Pasta de serviço (computador)",
+                        "Nenhum deles"
+                    ],
+                    "correct_answer": [
+                        "Afixada",
+                        "Pasta de serviço (computador)"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "text": "Existem afixados protocolos de higienização ambiental nos locais apropriados?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 32,
+            "text": "Sabe qual a cor do pano a ser utilizada para a higienização dos lavatórios / sanitas",
+            "type": "multiple_choice",
+            "options": [
+                "Amarelo / vermelho",
+                "Verde / branco",
+                "Azul / amarelo"
+            ],
+            "correct_answer": "Amarelo / vermelho"
+        },
+        {
+            "id": 33,
+            "text": "No serviço o que se usa?",
+            "type": "multiple_choice",
+            "options": [
+                "Pano",
+                "Toalhetes",
+                "Compressas"
+            ],
+            "correct_answer": "Pano"
+        },
+        {
+            "id": 34,
+            "text": "Os contentores de recolha de resíduos são adequados e em número suficiente",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 35,
+            "text": "Existe local de armazenamento para resíduos hospitalares, inacessível ao público e devidamente sinalizado",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 36,
+            "text": "Quem higieniza os contentores de resíduos e com que frequência",
+            "type": "multiple_choice",
+            "options": [
+                "Profissionais do serviço",
+                "Empresa"
+            ],
+            "correct_answer": "Empresa"
+        },
+        {
+            "id": 37,
+            "text": "O local de armazenamento de resíduos é de fácil limpeza/higienização",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 38,
+            "text": "A roupa limpa está acondicionada em local apropriado e protegida?",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 39,
+            "text": "Onde guardam a roupa limpa",
+            "type": "multiple_choice",
+            "options": [
+                "Local seco e limpo, fechado, após a remoção do plástico",
+                "Local seco e limpo, fechado, sem a remoção do plástico",
+                "Local seco e limpo, após a remoção do plástico"
+            ],
+            "correct_answer": "Local seco e limpo, fechado, após a remoção do plástico"
+        },
+        {
+            "id": 40,
+            "text": "Os contentores reutilizáveis são higienizáveis e com mecanismo de abertura sem o uso das mãos",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 41,
+            "text": "Os contentores de recolha de roupa usada são adequados e em número suficiente",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 42,
+            "text": "Os sacos de roupa usada são colocados em local apropriado e fechado até à sua remoção",
+            "type": "multiple_choice",
+            "options": [
+                "Sacos cheios até 2/3 da capacidade, fechados, com braçadeira e colocados no contentor de roupa suja",
+                "Sacos cheios até 1/3 da capacidade, fechados, com braçadeira e colocados no contentor de roupa suja",
+                "Sacos cheios até 1/2 da capacidade, fechados, com braçadeira e colocados no contentor de roupa suja"
+            ],
+            "correct_answer": "Sacos cheios até 2/3 da capacidade, fechados, com braçadeira e colocados no contentor de roupa suja"
+        },
+        {
+            "id": 43,
+            "text": "Existe um local de armazenamento para o equipamento/material, de modo a não permanecer exposto desnecessariamente nos locais de prestação de cuidados",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 44,
+            "text": "O material/equipamento de uso único não é reutilizado",
+            "type": "boolean",
+            "options": [
+                "Sim",
+                "Não"
+            ],
+            "correct_answer": "Sim"
+        },
+        {
+            "id": 45,
+            "text": "Qual a imagem verdadeira de uso único",
+            "type": "image",
+            "options": [
+                "1",
+                "2"
+            ],
+            "correct_answer": "2"
+        }
+    ]
+}
